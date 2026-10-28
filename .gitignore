@@ -1,0 +1,77 @@
+﻿# Maven y compilacion
+target/
+build/
+.mvn/wrapper/maven-wrapper.jar
+
+# Secretos y configuracion local
+.env
+.env.*
+!.env.example
+application-local.properties
+application-*.local.properties
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+secrets.json
+
+# Registros y copias de bases de datos
+*.log
+*.dump
+*.backup
+*.bak
+*.sql.gz
+
+# Datos y exportaciones locales
+/data/
+/uploads/
+/exports/
+*.xlsx
+*.xls
+*.csv
+
+# IDE y sistema operativo
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+.vscode/
+.apt_generated
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Respaldos locales del frontend
+**/_backup_frontend_*/
+
+# Secretos locales
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Archivos generados o datos locales
+target/
+logs/
+*.log
+*.csv
+*.bak
+*.backup
+node_modules/
+.idea/
+.vscode/

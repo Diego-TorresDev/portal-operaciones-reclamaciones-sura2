@@ -1,0 +1,676 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Portal de Reclamaciones | SURA</title>
+  <link rel="stylesheet" href="/css/styles.css?v=20261027-approvals1">
+  <script defer src="/js/app.js?v=20261027-approvals1"></script>
+</head>
+<body>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <section id="loginScreen" class="login-screen">
+    <div class="login-brand-panel">
+      <div class="brand-lockup">
+        <span class="brand-mark">S</span>
+        <span>Portal de Operaciones</span>
+      </div>
+
+      <div class="login-brand-copy">
+        <p class="eyebrow">DIRECCIÓN DE TRANSFORMACIÓN OPERACIONAL</p>
+        <h1>Reclamaciones de salud, con trazabilidad de principio a fin.</h1>
+        <p>Un espacio de trabajo para evaluar, revisar y dar seguimiento seguro a cada caso.</p>
+      </div>
+
+      <div class="brand-footer">ENTORNO DE DEMOSTRACIÓN · DATOS FICTICIOS</div>
+    </div>
+
+    <div class="login-form-panel">
+      <form id="loginForm" class="login-card">
+        <div class="mobile-brand">
+          <span class="brand-mark">S</span>
+          <strong>SURA · Operaciones</strong>
+        </div>
+
+        <p class="eyebrow">ACCESO SEGURO</p>
+        <h2>Bienvenido</h2>
+        <p class="muted">Ingresa con tu usuario de prueba para continuar.</p>
+
+        <label for="username">Usuario</label>
+        <input
+          id="username"
+          name="username"
+          autocomplete="username"
+          maxlength="80"
+          required
+          placeholder="analista1 o admin1">
+
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          maxlength="200"
+          required
+          placeholder="Ingresa tu contraseña">
+
+        <button id="loginButton" class="button button-primary button-full" type="submit">
+          Iniciar sesión <span aria-hidden="true">→</span>
+        </button>
+
+        <p id="loginError" class="form-error" role="alert"></p>
+
+        <div class="login-security">
+          <span class="security-dot"></span>
+          Autenticación mediante token JWT
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell hidden">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">S</span>
+        <div>
+          <strong>SURA</strong>
+          <small>Portal de Operaciones</small>
+        </div>
+      </div>
+
+      <div class="sidebar-label">ESPACIO DE TRABAJO</div>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <button class="nav-item active" data-view="dashboard">
+          <span class="nav-icon">◫</span>Tablero
+        </button>
+        <button class="nav-item" data-view="cases">
+          <span class="nav-icon">▤</span>Casos
+        </button>
+        <button class="nav-item" data-view="import">
+          <span class="nav-icon">↑</span>Carga de archivo
+        </button>
+        <button class="nav-item" data-view="batches">
+          <span class="nav-icon">▣</span>Lotes de pago
+        </button>
+        <button class="nav-item admin-only" data-view="parameters">
+          <span class="nav-icon">⚙</span>Parámetros
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-help">
+          <span class="help-icon">i</span>
+          <div>
+            <strong>Entorno de prueba</strong>
+            <small>Operaciones de pago simuladas</small>
+          </div>
+        </div>
+
+        <button id="logoutButton" class="logout-button">
+          ↪ <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button
+          id="mobileMenuButton"
+          class="icon-button mobile-menu"
+          aria-label="Abrir menú">☰</button>
+
+        <div class="breadcrumb">
+          <span>Operaciones</span>
+          <span class="breadcrumb-separator">/</span>
+          <strong id="pageTitle">Tablero</strong>
+        </div>
+
+        <div class="topbar-right">
+          <span class="environment-tag"><span></span> DEMO</span>
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-meta">
+            <strong id="currentUsername">Usuario</strong>
+            <span id="currentRole">USUARIO</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-wrap">
+
+        <!-- TABLERO PRINCIPAL -->
+        <section id="view-dashboard" class="view-section">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">RESUMEN OPERACIONAL</p>
+              <h1>Tablero de control</h1>
+              <p class="muted">Estado general de las reclamaciones y su flujo de atención.</p>
+            </div>
+
+            <div class="heading-actions">
+              <button class="button button-outline" id="refreshDashboard">
+                ↻ Actualizar
+              </button>
+              <button class="button button-primary" data-open-view="import">
+                ＋ Cargar casos
+              </button>
+            </div>
+          </div>
+
+          <div id="dashboardAlert" class="inline-alert hidden"></div>
+
+          <!-- INDICADORES GENERALES -->
+          <div id="metricsGrid" class="metrics-grid">
+            <article class="metric-card">
+              <span class="metric-label">Total de casos</span>
+              <strong class="metric-value">—</strong>
+            </article>
+
+            <article class="metric-card">
+              <span class="metric-label">Automáticos</span>
+              <strong class="metric-value">—</strong>
+            </article>
+
+            <article class="metric-card">
+              <span class="metric-label">Manuales</span>
+              <strong class="metric-value">—</strong>
+            </article>
+
+            <article class="metric-card">
+              <span class="metric-label">Automatización</span>
+              <strong class="metric-value">—</strong>
+            </article>
+          </div>
+
+          <!-- TARJETAS DE APROBACIONES -->
+          <section
+            id="approvalCards"
+            class="approval-cards"
+            aria-label="Resumen de casos aprobados">
+
+            <article class="approval-card approval-card--automatic">
+              <div class="approval-card-heading">
+                <div>
+                  <p class="approval-card-kicker">RESUMEN DE APROBACIONES</p>
+                  <h2 class="approval-card-title">Aprobados automáticos</h2>
+                </div>
+                <span class="approval-pill">AUTOMÁTICO</span>
+              </div>
+
+              <p class="muted">Cargando indicadores...</p>
+            </article>
+
+            <article class="approval-card approval-card--manual">
+              <div class="approval-card-heading">
+                <div>
+                  <p class="approval-card-kicker">RESUMEN DE APROBACIONES</p>
+                  <h2 class="approval-card-title">Aprobados manuales</h2>
+                </div>
+                <span class="approval-pill">ANALISTA</span>
+              </div>
+
+              <p class="muted">Cargando indicadores...</p>
+            </article>
+          </section>
+
+          <!-- DISTRIBUCIONES Y ACCESOS RÁPIDOS -->
+          <div class="dashboard-grid">
+            <section class="panel panel-large">
+              <div class="panel-heading">
+                <div>
+                  <h2>Distribución de casos</h2>
+                  <p class="muted">Volumen por estado actual</p>
+                </div>
+                <span class="panel-icon">▤</span>
+              </div>
+
+              <div id="stateDistribution" class="distribution-list">
+                <p class="muted">Cargando resumen…</p>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Prioridad de atención</h2>
+                  <p class="muted">Casos agrupados por prioridad</p>
+                </div>
+              </div>
+
+              <div id="priorityDistribution" class="priority-list">
+                <p class="muted">Cargando resumen…</p>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Semáforo ANS</h2>
+                  <p class="muted">Cumplimiento de tiempos de servicio</p>
+                </div>
+              </div>
+
+              <div id="semaphoreDistribution" class="semaphore-list">
+                <p class="muted">Cargando resumen…</p>
+              </div>
+            </section>
+
+            <section class="panel panel-large">
+              <div class="panel-heading">
+                <div>
+                  <h2>Accesos rápidos</h2>
+                  <p class="muted">Continúa con las tareas operacionales</p>
+                </div>
+              </div>
+
+              <div class="quick-actions">
+                <button data-open-view="cases">
+                  <span>▤</span>
+                  <strong>Consultar casos</strong>
+                  <small>Filtrar y revisar reclamaciones</small>
+                  <b>→</b>
+                </button>
+
+                <button data-open-view="batches">
+                  <span>▣</span>
+                  <strong>Lotes de pago</strong>
+                  <small>Generar o confirmar un lote</small>
+                  <b>→</b>
+                </button>
+
+                <button class="admin-only" data-open-view="parameters">
+                  <span>⚙</span>
+                  <strong>Parámetros</strong>
+                  <small>Configurar reglas y umbrales</small>
+                  <b>→</b>
+                </button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- GESTIÓN DE CASOS -->
+        <section id="view-cases" class="view-section hidden">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">BANDEJAS Y TRAZABILIDAD</p>
+              <h1>Gestión de casos</h1>
+              <p class="muted">Consulta reclamaciones, revisa las reglas y registra decisiones.</p>
+            </div>
+
+            <div class="heading-actions">
+              <button id="evaluateButton" class="button button-outline admin-analyst">
+                ↻ Reevaluar
+              </button>
+              <button id="exportButton" class="button button-primary">
+                ↓ Exportar CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="filters-panel">
+            <div class="filter-field filter-search">
+              <label for="caseSearch">Buscar caso</label>
+              <input id="caseSearch" placeholder="ID de caso o afiliado">
+            </div>
+
+            <div class="filter-field">
+              <label for="filterEstado">Estado</label>
+              <select id="filterEstado">
+                <option value="">Todos</option>
+                <option>EN_BANDEJA</option>
+                <option>EN_REVISION</option>
+                <option>APROBADO_AUTOMATICO</option>
+                <option>APROBADO_ANALISTA</option>
+                <option>EN_LOTE_PAGO</option>
+                <option>PAGADO</option>
+                <option>CERRADO</option>
+                <option>OBJETADO</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label for="filterDecision">Decisión</label>
+              <select id="filterDecision">
+                <option value="">Todas</option>
+                <option>AUTOMATICO</option>
+                <option>MANUAL</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label for="filterPrioridad">Prioridad</label>
+              <select id="filterPrioridad">
+                <option value="">Todas</option>
+                <option>ALTA</option>
+                <option>MEDIA</option>
+                <option>BAJA</option>
+                <option>SIN_PRIORIDAD</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label for="filterRegla">Regla</label>
+              <input id="filterRegla" placeholder="Ej. R08">
+            </div>
+
+            <div class="filter-field">
+              <label for="filterSemaforo">Semáforo</label>
+              <select id="filterSemaforo">
+                <option value="">Todos</option>
+                <option>VERDE</option>
+                <option>AMARILLO</option>
+                <option>ROJO</option>
+                <option>CUMPLIDO</option>
+              </select>
+            </div>
+
+            <button id="applyFilters" class="button button-primary filter-button">
+              Aplicar
+            </button>
+          </div>
+
+          <section class="panel table-panel">
+            <div class="table-toolbar">
+              <div>
+                <h2>Listado de reclamaciones</h2>
+                <p id="caseCount" class="muted">Consultando casos…</p>
+              </div>
+
+              <div class="table-toolbar-right">
+                <label for="pageSize">Filas</label>
+                <select id="pageSize">
+                  <option>10</option>
+                  <option selected>20</option>
+                  <option>50</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>CASO / AFILIADO</th>
+                    <th>DECISIÓN</th>
+                    <th>VALOR</th>
+                    <th>PRIORIDAD</th>
+                    <th>ESTADO</th>
+                    <th>ANS</th>
+                    <th></th>
+                  </tr>
+                </thead>
+
+                <tbody id="casesTableBody">
+                  <tr>
+                    <td colspan="7" class="table-empty">Cargando casos…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-footer">
+              <span id="pageInfo" class="muted">Página 1</span>
+              <div>
+                <button id="previousPage" class="button button-outline button-small">
+                  ← Anterior
+                </button>
+                <button id="nextPage" class="button button-outline button-small">
+                  Siguiente →
+                </button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <!-- CARGA DE ARCHIVO -->
+        <section id="view-import" class="view-section hidden">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">INGESTA CONTROLADA</p>
+              <h1>Carga de archivo</h1>
+              <p class="muted">Valida el Excel antes de procesarlo con las reglas de negocio.</p>
+            </div>
+          </div>
+
+          <div class="import-layout">
+            <section class="panel import-panel">
+              <div class="upload-symbol">↑</div>
+              <h2>Selecciona el archivo de insumos</h2>
+              <p class="muted">Archivo .xlsx · tamaño máximo configurado en el backend.</p>
+
+              <form id="uploadForm">
+                <label id="dropZone" class="drop-zone" for="excelFile">
+                  <span class="drop-icon">▧</span>
+                  <strong id="fileName">Arrastra tu archivo aquí o selecciónalo</strong>
+                  <small>Solo archivos Excel .xlsx</small>
+                  <input
+                    id="excelFile"
+                    name="archivo"
+                    type="file"
+                    accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    required>
+                </label>
+
+                <div class="upload-actions">
+                  <button id="validateFileButton" type="submit" class="button button-outline">
+                    1. Validar archivo
+                  </button>
+                  <button id="importFileButton" type="button" class="button button-primary" disabled>
+                    2. Procesar e importar
+                  </button>
+                </div>
+              </form>
+
+              <div id="uploadResult" class="result-box hidden" aria-live="polite"></div>
+            </section>
+
+            <aside class="panel import-steps">
+              <h2>Proceso de carga</h2>
+
+              <div class="process-step">
+                <span>1</span>
+                <div>
+                  <strong>Selección</strong>
+                  <p>Elige el archivo fuente original.</p>
+                </div>
+              </div>
+
+              <div class="process-step">
+                <span>2</span>
+                <div>
+                  <strong>Validación</strong>
+                  <p>El servidor verifica tipo, tamaño y estructura.</p>
+                </div>
+              </div>
+
+              <div class="process-step">
+                <span>3</span>
+                <div>
+                  <strong>Importación</strong>
+                  <p>El backend procesa los casos y aplica sus reglas.</p>
+                </div>
+              </div>
+
+              <div class="notice note-warning">
+                <strong>Importante</strong>
+                <p>Importar puede crear o modificar registros según las reglas del backend. Usa el archivo de prueba y evita repetir la carga sin verificar el resultado.</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- LOTES DE PAGO -->
+        <section id="view-batches" class="view-section hidden">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">GESTIÓN DE PAGOS</p>
+              <h1>Lotes de pago</h1>
+              <p class="muted">Agrupa los casos aprobados y confirma el pago simulado.</p>
+            </div>
+            <button id="generateBatchButton" class="button button-primary admin-analyst">
+              ＋ Generar lote
+            </button>
+          </div>
+
+          <div class="notice note-info">
+            <strong>Flujo del lote</strong>
+            <p>La generación incluye los casos aprobados que el backend encuentre elegibles en ese momento. La confirmación es simulada y está reservada para ADMIN.</p>
+          </div>
+
+          <section class="panel batch-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Resultado de lote</h2>
+                <p class="muted">El detalle de la generación se mostrará aquí.</p>
+              </div>
+              <span class="panel-icon">▣</span>
+            </div>
+
+            <div id="batchResult" class="batch-result empty-state">
+              <div class="empty-illustration">▣</div>
+              <strong>No se ha generado un lote en esta sesión</strong>
+              <p>Al generar un lote se mostrarán su identificador, cantidad, valor y estado.</p>
+            </div>
+
+            <div id="payBatchControls" class="pay-batch-controls hidden">
+              <label for="batchIdInput">ID del lote</label>
+              <input
+                id="batchIdInput"
+                type="number"
+                min="1"
+                placeholder="Identificador numérico del lote">
+              <button id="payBatchButton" class="button button-primary admin-only">
+                Confirmar pago simulado
+              </button>
+            </div>
+          </section>
+        </section>
+
+        <!-- PARÁMETROS -->
+        <section id="view-parameters" class="view-section hidden">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">CONFIGURACIÓN DEL MOTOR</p>
+              <h1>Parámetros</h1>
+              <p class="muted">Ajusta valores de negocio sin cambiar código. Solo ADMIN puede modificarlos.</p>
+            </div>
+
+            <button id="reloadParametersButton" class="button button-outline">
+              ↻ Actualizar
+            </button>
+          </div>
+
+          <div class="notice note-warning">
+            <strong>Registro de cambios</strong>
+            <p>Cada modificación requiere un motivo de al menos 10 caracteres y se envía al backend para su auditoría.</p>
+          </div>
+
+          <section class="panel table-panel">
+            <div class="table-toolbar">
+              <div>
+                <h2>Parámetros configurables</h2>
+                <p id="parametersCaption" class="muted">Cargando configuración…</p>
+              </div>
+            </div>
+
+            <div id="parametersList" class="parameters-list">
+              <p class="table-empty">Cargando parámetros…</p>
+            </div>
+          </section>
+        </section>
+
+        <footer class="app-footer">
+          <span>Portal de Operaciones de Reclamaciones de Salud</span>
+          <span>Entorno de demostración · Las operaciones de pago son simuladas</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: DETALLE DEL CASO -->
+  <div
+    id="caseModal"
+    class="modal-backdrop hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="caseModalTitle">
+
+    <div class="case-modal">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">DETALLE Y TRAZABILIDAD</p>
+          <h2 id="caseModalTitle">Detalle del caso</h2>
+          <p id="caseModalSubtitle" class="muted"></p>
+        </div>
+
+        <button id="closeCaseModal" class="icon-button" aria-label="Cerrar detalle">
+          ×
+        </button>
+      </div>
+
+      <div id="caseModalBody" class="modal-body">
+        <p class="muted">Cargando detalle…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DECISIÓN DEL ANALISTA -->
+  <div
+    id="decisionModal"
+    class="modal-backdrop hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="decisionModalTitle">
+
+    <div class="decision-modal">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">REVISIÓN MANUAL</p>
+          <h2 id="decisionModalTitle">Registrar decisión</h2>
+          <p id="decisionModalSubtitle" class="muted"></p>
+        </div>
+
+        <button id="closeDecisionModal" class="icon-button" aria-label="Cerrar decisión">
+          ×
+        </button>
+      </div>
+
+      <form id="decisionForm" class="modal-body">
+        <input id="decisionCaseCode" type="hidden">
+        <input id="decisionAction" type="hidden">
+
+        <label for="decisionObservation">
+          Observación
+          <span class="required-label">Obligatoria · mínimo 20 caracteres</span>
+        </label>
+
+        <textarea
+          id="decisionObservation"
+          rows="5"
+          minlength="20"
+          maxlength="2000"
+          required
+          placeholder="Explica la justificación de la decisión…"></textarea>
+
+        <div class="character-count">
+          <span id="observationCount">0</span>/2000 caracteres
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelDecisionButton" class="button button-outline">
+            Cancelar
+          </button>
+          <button type="submit" id="submitDecisionButton" class="button button-primary">
+            Guardar decisión
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

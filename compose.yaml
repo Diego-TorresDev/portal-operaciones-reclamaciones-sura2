@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sura_reclamaciones
+      POSTGRES_USER: ${DB_USERNAME:-sura_app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}
+    volumes:
+      # PostgreSQL 18+: montar el volumen en /var/lib/postgresql.
+      - portal_reclamaciones_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - backend-interno
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/sura_reclamaciones
+      DB_USERNAME: ${DB_USERNAME:-sura_app}
+      DB_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?Define APP_JWT_SECRET en el archivo .env}
+      JWT_SECRET: ${APP_JWT_SECRET:?Define APP_JWT_SECRET en el archivo .env}
+      APP_BOOTSTRAP_USERS_ENABLED: ${APP_BOOTSTRAP_USERS_ENABLED:-false}
+      APP_ANALISTA_PASSWORD: ${APP_ANALISTA_PASSWORD:-}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-}
+      APP_CORS_ALLOWED_ORIGIN: ${APP_CORS_ALLOWED_ORIGIN:-http://localhost:8081}
+      APP_RATE_LIMIT_API_PER_MINUTE: ${APP_RATE_LIMIT_API_PER_MINUTE:-120}
+      API_RATE_LIMIT_PER_MINUTE: ${APP_RATE_LIMIT_API_PER_MINUTE:-120}
+      APP_RATE_LIMIT_LOGIN_PER_MINUTE: ${APP_RATE_LIMIT_LOGIN_PER_MINUTE:-10}
+      LOGIN_RATE_LIMIT_PER_MINUTE: ${APP_RATE_LIMIT_LOGIN_PER_MINUTE:-10}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
+      GROQ_TIMEOUT_SECONDS: ${GROQ_TIMEOUT_SECONDS:-15}
+      SERVER_PORT: 8080
+    ports:
+      - "${APP_PORT:-8081}:8080"
+    networks:
+      - backend-interno
+
+networks:
+  backend-interno:
+    driver: bridge
+
+volumes:
+  portal_reclamaciones_pgdata:

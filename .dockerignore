@@ -1,0 +1,16 @@
+.git
+.gitignore
+**/target
+**/.idea
+**/.vscode
+**/*.bak
+**/*.bak_*
+**/*.log
+.env
+.env.*
+!.env.example
+**/*.xlsx
+**/*.xls
+**/*.csv
+**/*.dump
+**/*.sql.gz
